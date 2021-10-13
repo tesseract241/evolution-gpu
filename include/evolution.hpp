@@ -55,11 +55,6 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
     Genome_t *thisGenome = genomes;
     Genome_t *nextGenome = new Genome_t[populationSize];
     Body *thisGen = bodies;
-    for(int i=0;i<populationSize;++i){
-        if(!bodies[i].cells){
-            bodies[i].cells = new Cell[256*256*256];
-        }
-    }
     Body *nextGen = new Body[populationSize];
     for(int i=0;i<populationSize;++i){
         nextGen[i].cells = new Cell[256*256*256];

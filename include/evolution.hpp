@@ -270,6 +270,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
             previousWeights = plan.stages[i].weights[0] + plan.stages[i].weights[1]*j;
         }
     }
+    delete[] data;
     if(genomes!=thisGenome){
         std::memcpy(genomes, thisGenome, populationSize*sizeof(Genome_t));
     }

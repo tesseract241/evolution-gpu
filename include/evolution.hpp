@@ -52,17 +52,21 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
     if(!initializeOpenGLHandles(&handles)){
         exit(EXIT_FAILURE);    
     }
-    Genome_t *thisGenome = genomes;
-    Genome_t *nextGenome = new Genome_t[populationSize];
-    Body *thisGen = bodies;
-    Body *nextGen = new Body[populationSize];
+    Genome_t *thisGenome    = genomes;
+    Genome_t *nextGenome    = new Genome_t[populationSize];
+    uint8_t **thisGen       = new uint8_t*[populationSize];
     for(int i=0;i<populationSize;++i){
-        nextGen[i].cells = new Cell[256*256*256];
+        thisGen[i] = new uint8_t[256*256*256];
+    }
+    uint8_t **nextGen       = new uint8_t*[populationSize];
+    for(int i=0;i<populationSize;++i){
+        nextGen[i] = new uint8_t[256*256*256];
     }
     float *currentFitness  = fitness;
     float *nextFitness     = new float[populationSize];
+    Body dummyBody;
+    dummyBody.cells = new Cell[256*256*256];
     int winners[populationSize];
-    uint8_t *data = new uint8_t[256*256*256];
     std::vector<int> invalidatedBodies;
     invalidatedBodies.reserve(populationSize);
     for(int i=0;i<populationSize;++i){
@@ -70,8 +74,9 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
         generateGenome(thisGenome + i);
         loadGenome(&handles, thisGenome + i);
         developBody(&handles, developmentStages);
-        birthBody(thisGen + i, data);
-        currentFitness[i] = fitnessFunction(thisGen + i, plan.targets, plan.stages[0].weights[0]);
+        birthBody(thisGen[i]);
+        isolateBody(&dummyBody, thisGen[i]);
+        currentFitness[i] = fitnessFunction(&dummyBody, plan.targets, plan.stages[0].weights[0]);
     }
     std::cout<<std::endl;
     std::random_device rd;  
@@ -232,8 +237,9 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                         nextGenome[individualsGenerated + l] = thisGenome[winners[l]];
                     }
                     for(int l=0;l<substage.individuals;++l){
-                        std::memcpy(nextGen[individualsGenerated+l].cells, thisGen[winners[l]].cells, thisGen[winners[l]].cellsNumber * sizeof(Cell));
-                        nextGen[individualsGenerated+l].cellsNumber = thisGen[winners[l]].cellsNumber;
+                        uint8_t *dummy = nextGen[individualsGenerated+l];
+                        nextGen[individualsGenerated+l] = thisGen[winners[l]];
+                        thisGen[winners[l]] = dummy;
                     }
                     for(int l=0;l<substage.individuals;++l){
                         nextFitness[individualsGenerated + l] = currentFitness[winners[l]];
@@ -241,9 +247,9 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                 }
                 individualsGenerated+=substage.individuals;
             }
-            Body *bodyDummy = nextGen;
+            uint8_t **dummy = nextGen;
             nextGen = thisGen;
-            thisGen = bodyDummy;
+            thisGen = dummy;
             float *fitnessDummy = nextFitness;
             nextFitness = currentFitness;
             currentFitness = fitnessDummy;
@@ -255,36 +261,39 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                 std::cout<<"Developing genome "<<invalidatedBodies[k]<<std::endl;
                 loadGenome(&handles, thisGenome + invalidatedBodies[k]);
                 developBody(&handles, developmentStages);
-                birthBody(thisGen + invalidatedBodies[k], data);
+                birthBody(thisGen[invalidatedBodies[k]]);
             }
             if(plan.stages[i].weights[0] + plan.stages[i].weights[1]*j==previousWeights){
                     for(int k : invalidatedBodies){
-                        currentFitness[k] = fitnessFunction(thisGen+k, plan.targets, plan.stages[i].weights[0] + plan.stages[i].weights[1] * j);
+                        isolateBody(&dummyBody, thisGen[k]);
+                        currentFitness[k] = fitnessFunction(&dummyBody, plan.targets, plan.stages[i].weights[0] + plan.stages[i].weights[1] * j);
                     }
             } else {
                     for(int k=0;k<populationSize;++k){
-                        currentFitness[k] = fitnessFunction(thisGen+k, plan.targets, plan.stages[i].weights[0] + plan.stages[i].weights[1] * j);
+                        isolateBody(&dummyBody, thisGen[k]);
+                        currentFitness[k] = fitnessFunction(&dummyBody, plan.targets, plan.stages[i].weights[0] + plan.stages[i].weights[1] * j);
                     }
             }
             invalidatedBodies.clear();
             previousWeights = plan.stages[i].weights[0] + plan.stages[i].weights[1]*j;
         }
     }
-    delete[] data;
     if(genomes!=thisGenome){
         std::memcpy(genomes, thisGenome, populationSize*sizeof(Genome_t));
     }
     delete[] nextGenome;
     nextGenome = 0;
-    if(bodies!=thisGen){
-        std::memcpy(bodies, thisGen, populationSize*sizeof(Body));
+    for(int i=0;i<populationSize;++i){
+        isolateBody(bodies + i, thisGen[i]);
     }
     for(int i=0;i<populationSize;++i){
-        delete[] nextGen[i].cells;
-        nextGen[i].cells = 0;
+        delete[] thisGen[i];
+    }
+    delete[] thisGen;
+    for(int i=0;i<populationSize;++i){
+        delete[] nextGen[i];
     }
     delete[] nextGen;
-    nextGen = 0;
     if(fitness!=currentFitness){
         std::memcpy(fitness, currentFitness, populationSize*sizeof(float));
     }

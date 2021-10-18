@@ -278,11 +278,11 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
             previousWeights = plan.stages[i].weights[0] + plan.stages[i].weights[1]*j;
         }
     }
+    delete[] dummyBody.cells;
     if(genomes!=thisGenome){
         std::memcpy(genomes, thisGenome, populationSize*sizeof(Genome_t));
     }
     delete[] nextGenome;
-    nextGenome = 0;
     for(int i=0;i<populationSize;++i){
         isolateBody(bodies + i, thisGen[i]);
     }
@@ -298,6 +298,5 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
         std::memcpy(fitness, currentFitness, populationSize*sizeof(float));
     }
     delete[] nextFitness;
-    nextFitness = 0;
     deleteHandles(&handles);
 }

@@ -70,7 +70,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
     std::vector<int> invalidatedBodies;
     invalidatedBodies.reserve(populationSize);
     for(int i=0;i<populationSize;++i){
-        std::cout<<"Developing genome "<<i<<"...\n";
+        std::cout<<"\rDeveloping genome "<<i+1<<" of "<<populationSize<<"..."<<std::flush;
         generateGenome(thisGenome + i);
         loadGenome(&handles, thisGenome + i);
         developBody(&handles, developmentStages);
@@ -92,7 +92,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
     for(int i=0;i<plan.number;++i){
         W previousWeights = plan.stages[i].weights[0];
         for(int j=0;j<plan.stages[i].repeats;++j){
-            std::cout<<"Stage "<<i<<", repeat "<<j<<std::endl;
+            std::cout<<"Stage "<<i+1<<" of "<<plan.number<<", repeat "<<j+1<<" of "<<plan.stages[i].repeats<<std::endl;
             int individualsGenerated = 0;
             for(auto &substage: plan.stages[i].substages){
                 switch(substage.type){
@@ -258,11 +258,12 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
             thisGenome = genomeDummy;
             std::sort(invalidatedBodies.begin(), invalidatedBodies.end());
             for(uint64_t k=0;k<invalidatedBodies.size();++k){
-                std::cout<<"Developing genome "<<invalidatedBodies[k]<<std::endl;
+                std::cout<<"\rDeveloping genome "<<k+1<<" of "<<invalidatedBodies.size()<<std::flush;
                 loadGenome(&handles, thisGenome + invalidatedBodies[k]);
                 developBody(&handles, developmentStages);
                 birthBody(thisGen[invalidatedBodies[k]]);
             }
+            std::cout<<std::endl;
             if(plan.stages[i].weights[0] + plan.stages[i].weights[1]*j==previousWeights){
                     for(int k : invalidatedBodies){
                         isolateBody(&dummyBody, thisGen[k]);

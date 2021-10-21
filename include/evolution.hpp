@@ -158,7 +158,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                                     }
                                 }
                             }
-                            twoPointsCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci, sizeof(genesLoci));
+                            twoPointsCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci, sizeof(genesLoci)/sizeof(genesLoci[0]));
                             invalidatedBodies.push_back(individualsGenerated + l);
                         }
                         break;
@@ -208,7 +208,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                                     }
                                 }
                             }
-                            uniformCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci,sizeof(genesLoci));
+                            uniformCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci,sizeof(genesLoci)/sizeof(genesLoci[0]));
                             invalidatedBodies.push_back(individualsGenerated + l);
                         }
                         break;

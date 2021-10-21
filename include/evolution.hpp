@@ -81,11 +81,11 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
     std::cout<<std::endl;
     std::random_device rd;  
     std::mt19937 gen(rd()); 
-    uint64_t genesLoci[stemCellsTypes*fieldsNumber*8 + 7*fieldsNumber];
-    for(int i=0;i<stemCellsTypes*fieldsNumber*8;++i){
+    uint64_t genesLoci[stemCellsTypes*fieldsNumber*8 + 7*fieldsNumber + 1];
+    for(int i=0;i<stemCellsTypes*fieldsNumber*8 + 1;++i){
         genesLoci[i] = i;
     }
-    for(int i=0;i<7*fieldsNumber;++i){
+    for(int i=1;i<7*fieldsNumber+1;++i){
         genesLoci[stemCellsTypes*fieldsNumber*8 + i] = stemCellsTypes*fieldsNumber*8 +2*i;
     }
 
@@ -158,7 +158,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                                     }
                                 }
                             }
-                            twoPointsCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci, stemCellsTypes*fieldsNumber + fieldsNumber - 1);
+                            twoPointsCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci, sizeof(genesLoci));
                             invalidatedBodies.push_back(individualsGenerated + l);
                         }
                         break;
@@ -208,7 +208,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                                     }
                                 }
                             }
-                            uniformCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci, stemCellsTypes*fieldsNumber + fieldsNumber - 1);
+                            uniformCrossover((uint8_t*)(thisGenome + parents[l]), (uint8_t*)(thisGenome + bestMatchIndex), sizeof(Genome_t), (uint8_t*) nextGenome + individualsGenerated + l, genesLoci,sizeof(genesLoci));
                             invalidatedBodies.push_back(individualsGenerated + l);
                         }
                         break;

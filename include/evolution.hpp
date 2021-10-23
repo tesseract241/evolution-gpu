@@ -225,8 +225,8 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                             permutation[index] = l;
                         }
                         for(int l=0;l<substage.individuals;++l){
-                            mutateGenome(thisGenome + permutation[l], substage.param.mutationProbability);
                             nextGenome[individualsGenerated + l] = thisGenome[permutation[l]];
+                            mutateGenome(nextGenome + l, substage.param.mutationProbability);
                             invalidatedBodies.push_back(individualsGenerated + l);
                         }
                         break;
@@ -237,9 +237,7 @@ void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *
                         nextGenome[individualsGenerated + l] = thisGenome[winners[l]];
                     }
                     for(int l=0;l<substage.individuals;++l){
-                        uint8_t *dummy = nextGen[individualsGenerated+l];
-                        nextGen[individualsGenerated+l] = thisGen[winners[l]];
-                        thisGen[winners[l]] = dummy;
+                        std::memcpy(nextGen[individualsGenerated+l],  thisGen[winners[l]], 246*256*256);
                     }
                     for(int l=0;l<substage.individuals;++l){
                         nextFitness[individualsGenerated + l] = currentFitness[winners[l]];

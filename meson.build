@@ -1,0 +1,7 @@
+project('evolution-gpu', 'cpp')
+evo_devo_gpu = subproject('evo-devo-gpu')
+genetic_algorithm = subproject('genetic-algorithm--')
+evo_devo_gpu_dep = evo_devo_gpu.get_variable('evo_devo_gpu_dep')
+genetic_algorithm_dep = genetic_algorithm.get_variable('genetic_algorithm_dep')
+evolution_gpu = library('evolution-gpu', include_directories: 'include', dependencies: [evo_devo_gpu_dep, genetic_algorithm_dep])
+evolution_gpu_dep = declare_dependency(link_with: evolution_gpu, include_directories: 'include')

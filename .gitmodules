@@ -1,6 +1,6 @@
 [submodule "evo-devo-gpu"]
-	path = evo-devo-gpu
+	path = subprojects/evo-devo-gpu
 	url = ../evo-devo-gpu/
 [submodule "genetic-algorithm--"]
-	path = genetic-algorithm--
+	path = subprojects/genetic-algorithm--
 	url = https://github.com/tesseract241/genetic-algorithm--.git

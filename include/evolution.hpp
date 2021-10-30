@@ -1,6 +1,103 @@
 #pragma once
 ///@file evolution.hpp
 ///@brief One-package solution to evolve an evo-devo 3D model according to genetic-algorithm rules
+/*! @code
+ *  struct FitnessTargets{
+ *      float heightToBaseRatio;
+ *      float occupancy;
+ *  };
+ *  
+ *  struct FitnessWeights{
+ *      float heightToBaseRatioFactor;
+ *      float heightToBaseRatioSigma;
+ *      float occupancyFactor;
+ *      float occupancySigma;
+ *  
+ *      inline bool operator==(const FitnessWeights &rhs){
+ *          return this->heightToBaseRatioFactor==rhs.heightToBaseRatioFactor && this->occupancyFactor==rhs.occupancyFactor && this->heightToBaseRatioSigma==rhs.heightToBaseRatioSigma && this->occupancySigma==rhs.occupancySigma;
+ *      }
+ *      inline bool operator!=(const FitnessWeights &rhs){
+ *          return !(*this==rhs);
+ *      }
+ *  
+ *      FitnessWeights& operator+=(const FitnessWeights &rhs){
+ *          this->heightToBaseRatioFactor+=rhs.heightToBaseRatioFactor;
+ *          this->occupancyFactor+=rhs.occupancyFactor;
+ *          this->heightToBaseRatioSigma+=rhs.heightToBaseRatioSigma;
+ *          this->occupancySigma+=rhs.occupancySigma;
+ *          return *this;
+ *      }
+ *      friend FitnessWeights operator+(FitnessWeights lhs, const FitnessWeights &rhs){
+ *          lhs+=rhs;
+ *          return lhs;
+ *      }
+ *  
+ *      FitnessWeights& operator*=(const int &rhs){
+ *          this->heightToBaseRatioFactor*=rhs;
+ *          this->occupancyFactor*=rhs;
+ *          this->heightToBaseRatioSigma*=rhs;
+ *          this->occupancySigma*=rhs;
+ *          return *this;
+ *      }
+ *      friend FitnessWeights operator*(FitnessWeights lhs, const int &rhs){
+ *          lhs*=rhs;
+ *          return lhs;
+ *      }
+ *  };
+ *  
+ *  float fitnessFunction(Body *body, const FitnessTargets &targets, const FitnessWeights &weights){
+ *      int minX = 0;
+ *      int maxX = 0;
+ *      int minY = 0;
+ *      int maxY = 0;
+ *      int minZ = 0;
+ *      int maxZ = 0;
+ *      for(uint64_t i=0;i<body->cellsNumber;++i){
+ *          minX = body->cells[i].indices[0] < minX ? body->cells[i].indices[0] : minX;
+ *          maxX = body->cells[i].indices[0] > maxX ? body->cells[i].indices[0] : maxX;
+ *          minY = body->cells[i].indices[1] < minY ? body->cells[i].indices[1] : minY;
+ *          maxY = body->cells[i].indices[1] > maxY ? body->cells[i].indices[1] : maxY;
+ *          minZ = body->cells[i].indices[2] < minZ ? body->cells[i].indices[2] : minZ;
+ *          maxZ = body->cells[i].indices[2] > maxZ ? body->cells[i].indices[2] : maxZ;
+ *      }
+ *      //occupancy is calculated as the number of cells divided by the number of spaces in the bounding box (0 is a valid position, so we need to add 1 to all deltas)
+ *      float occupancy = body->cellsNumber/ float((maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1));
+ *      float heightToBaseRatio = (maxZ - minZ + 1) / hypotf(maxX - minX + 1, maxY - minY + 1);
+ *      //The individual fitnesses are gaussian function, normalizing them wouldn't affect the maximization process so it's avoided as a waste of time
+ *      float oFitness      = weights.occupancyFactor * std::exp(-0.5*std::pow((occupancy - targets.occupancy)/weights.occupancySigma, 2));
+ *      float htbrFitness   = weights.heightToBaseRatioFactor * std::exp(-0.5*std::pow((heightToBaseRatio - targets.heightToBaseRatio)/weights.heightToBaseRatioSigma, 2));
+ *      return oFitness + htbrFitness;
+ *  }
+ *  int main(){
+ *      SelectionStage<FitnessWeights> stages[stagesNumber];
+ *      FitnessWeights weights[2] = {{0.1, 3., 0.1, 1.}, {0.01, -0.02, 0.01, -0.005}};
+ *      stages[0].weights[0] = weights[0];
+ *      stages[0].weights[1] = weights[1];
+ *      stages[0].substages.emplace_back(SelectionSubstage::TOURNAMENT, 10, 96);
+ *      stages[0].substages.emplace_back(SelectionSubstage::TWO_POINTS_CO, 0.1f, 16);
+ *      stages[0].substages.emplace_back(SelectionSubstage::MUTATE, 0.1f, 16);
+ *      stages[0].repeats = 10;
+ *
+ *      FitnessTargets targets{1.5, 0.5};
+ *      SelectionPlan<FitnessWeights, FitnessTargets> plan{stages, stagesNumber, true , targets};
+ *      plan.stages = stages;
+ *      Body        *bodies     = new Body      [populationSize];
+ *      for(int i=0;i<populationSize;++i){
+ *          bodies[i].cells = new Cell[256*256*256];
+ *      }
+ *      float       *fitness    = new float     [populationSize];
+ *      Genome_t    *genomes    = new Genome_t  [populationSize];
+ *      evolve(genomes, populationSize, developmentalStages, bodies, fitness, plan, fitnessFunction, geneticDistance);
+ *      for(int i=0;i<populationSize;++i){
+ *          delete[] bodies[i].cells;
+ *      }
+ *      delete[] bodies;
+ *      delete[] fitness;
+ *      delete[] genomes;
+ *      }    
+ *      @endcode
+ */
+
 
 #include <vector>
 #include <genetic-algorithm.hpp>

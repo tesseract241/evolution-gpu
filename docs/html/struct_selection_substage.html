@@ -134,7 +134,106 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>individuals</b></td></
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Contains all the necessary data to call a genetic algorithm function. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<div class="fragment"><div class="line"><span class="keyword">struct </span>FitnessTargets{</div>
+<div class="line">    <span class="keywordtype">float</span> heightToBaseRatio;</div>
+<div class="line">    <span class="keywordtype">float</span> occupancy;</div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">struct </span>FitnessWeights{</div>
+<div class="line">    <span class="keywordtype">float</span> heightToBaseRatioFactor;</div>
+<div class="line">    <span class="keywordtype">float</span> heightToBaseRatioSigma;</div>
+<div class="line">    <span class="keywordtype">float</span> occupancyFactor;</div>
+<div class="line">    <span class="keywordtype">float</span> occupancySigma;</div>
+<div class="line"> </div>
+<div class="line">    <span class="keyword">inline</span> <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> FitnessWeights &amp;rhs){</div>
+<div class="line">        <span class="keywordflow">return</span> this-&gt;heightToBaseRatioFactor==rhs.heightToBaseRatioFactor &amp;&amp; this-&gt;occupancyFactor==rhs.occupancyFactor &amp;&amp; this-&gt;heightToBaseRatioSigma==rhs.heightToBaseRatioSigma &amp;&amp; this-&gt;occupancySigma==rhs.occupancySigma;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keyword">inline</span> <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> FitnessWeights &amp;rhs){</div>
+<div class="line">        <span class="keywordflow">return</span> !(*<span class="keyword">this</span>==rhs);</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    FitnessWeights&amp; operator+=(<span class="keyword">const</span> FitnessWeights &amp;rhs){</div>
+<div class="line">        this-&gt;heightToBaseRatioFactor+=rhs.heightToBaseRatioFactor;</div>
+<div class="line">        this-&gt;occupancyFactor+=rhs.occupancyFactor;</div>
+<div class="line">        this-&gt;heightToBaseRatioSigma+=rhs.heightToBaseRatioSigma;</div>
+<div class="line">        this-&gt;occupancySigma+=rhs.occupancySigma;</div>
+<div class="line">        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keyword">friend</span> FitnessWeights operator+(FitnessWeights lhs, <span class="keyword">const</span> FitnessWeights &amp;rhs){</div>
+<div class="line">        lhs+=rhs;</div>
+<div class="line">        <span class="keywordflow">return</span> lhs;</div>
+<div class="line">    }</div>
+<div class="line"> </div>
+<div class="line">    FitnessWeights&amp; operator*=(<span class="keyword">const</span> <span class="keywordtype">int</span> &amp;rhs){</div>
+<div class="line">        this-&gt;heightToBaseRatioFactor*=rhs;</div>
+<div class="line">        this-&gt;occupancyFactor*=rhs;</div>
+<div class="line">        this-&gt;heightToBaseRatioSigma*=rhs;</div>
+<div class="line">        this-&gt;occupancySigma*=rhs;</div>
+<div class="line">        <span class="keywordflow">return</span> *<span class="keyword">this</span>;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keyword">friend</span> FitnessWeights operator*(FitnessWeights lhs, <span class="keyword">const</span> <span class="keywordtype">int</span> &amp;rhs){</div>
+<div class="line">        lhs*=rhs;</div>
+<div class="line">        <span class="keywordflow">return</span> lhs;</div>
+<div class="line">    }</div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">float</span> fitnessFunction(Body *body, <span class="keyword">const</span> FitnessTargets &amp;targets, <span class="keyword">const</span> FitnessWeights &amp;weights){</div>
+<div class="line">    <span class="keywordtype">int</span> minX = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> maxX = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> minY = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> maxY = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> minZ = 0;</div>
+<div class="line">    <span class="keywordtype">int</span> maxZ = 0;</div>
+<div class="line">    <span class="keywordflow">for</span>(uint64_t i=0;i&lt;body-&gt;cellsNumber;++i){</div>
+<div class="line">        minX = body-&gt;cells[i].indices[0] &lt; minX ? body-&gt;cells[i].indices[0] : minX;</div>
+<div class="line">        maxX = body-&gt;cells[i].indices[0] &gt; maxX ? body-&gt;cells[i].indices[0] : maxX;</div>
+<div class="line">        minY = body-&gt;cells[i].indices[1] &lt; minY ? body-&gt;cells[i].indices[1] : minY;</div>
+<div class="line">        maxY = body-&gt;cells[i].indices[1] &gt; maxY ? body-&gt;cells[i].indices[1] : maxY;</div>
+<div class="line">        minZ = body-&gt;cells[i].indices[2] &lt; minZ ? body-&gt;cells[i].indices[2] : minZ;</div>
+<div class="line">        maxZ = body-&gt;cells[i].indices[2] &gt; maxZ ? body-&gt;cells[i].indices[2] : maxZ;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="comment">//occupancy is calculated as the number of cells divided by the number of spaces in the bounding box (0 is a valid position, so we need to add 1 to all deltas)</span></div>
+<div class="line">    <span class="keywordtype">float</span> occupancy = body-&gt;cellsNumber/ float((maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1));</div>
+<div class="line">    <span class="keywordtype">float</span> heightToBaseRatio = (maxZ - minZ + 1) / hypotf(maxX - minX + 1, maxY - minY + 1);</div>
+<div class="line">    <span class="comment">//The individual fitnesses are gaussian function, normalizing them wouldn&#39;t affect the maximization process so it&#39;s avoided as a waste of time</span></div>
+<div class="line">    <span class="keywordtype">float</span> oFitness      = weights.occupancyFactor * std::exp(-0.5*std::pow((occupancy - targets.occupancy)/weights.occupancySigma, 2));</div>
+<div class="line">    <span class="keywordtype">float</span> htbrFitness   = weights.heightToBaseRatioFactor * std::exp(-0.5*std::pow((heightToBaseRatio - targets.heightToBaseRatio)/weights.heightToBaseRatioSigma, 2));</div>
+<div class="line">    <span class="keywordflow">return</span> oFitness + htbrFitness;</div>
+<div class="line">}</div>
+<div class="line"><span class="keywordtype">int</span> main(){</div>
+<div class="line">    <a class="code hl_struct" href="struct_selection_stage.html">SelectionStage&lt;FitnessWeights&gt;</a> stages[stagesNumber];</div>
+<div class="line">    FitnessWeights weights[2] = {{0.1, 3., 0.1, 1.}, {0.01, -0.02, 0.01, -0.005}};</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#acf51fc9838501f83343132f118e849a4">weights</a>[0] = weights[0];</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#acf51fc9838501f83343132f118e849a4">weights</a>[1] = weights[1];</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#ae0be7032aeb7e5bc1875a97bbfe97e20">substages</a>.emplace_back(SelectionSubstage::TOURNAMENT, 10, 96);</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#ae0be7032aeb7e5bc1875a97bbfe97e20">substages</a>.emplace_back(SelectionSubstage::TWO_POINTS_CO, 0.1f, 16);</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#ae0be7032aeb7e5bc1875a97bbfe97e20">substages</a>.emplace_back(SelectionSubstage::MUTATE, 0.1f, 16);</div>
+<div class="line">    stages[0].<a class="code hl_variable" href="struct_selection_stage.html#ae9b92b2f9a22a98ad09f0f94f79dcbf4">repeats</a> = 10;</div>
+<div class="line"> </div>
+<div class="line">    FitnessTargets targets{1.5, 0.5};</div>
+<div class="line">    <a class="code hl_struct" href="struct_selection_plan.html">SelectionPlan&lt;FitnessWeights, FitnessTargets&gt;</a> plan{stages, stagesNumber, true , targets};</div>
+<div class="line">    plan.stages = stages;</div>
+<div class="line">    Body        *bodies     = <span class="keyword">new</span> Body      [populationSize];</div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;populationSize;++i){</div>
+<div class="line">        bodies[i].cells = <span class="keyword">new</span> Cell[256*256*256];</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordtype">float</span>       *fitness    = <span class="keyword">new</span> <span class="keywordtype">float</span>     [populationSize];</div>
+<div class="line">    Genome_t    *genomes    = <span class="keyword">new</span> Genome_t  [populationSize];</div>
+<div class="line">    <a class="code hl_function" href="evolution_8hpp.html#a53253e7bfd4234591abc6643bf6b395b">evolve</a>(genomes, populationSize, developmentalStages, bodies, fitness, plan, fitnessFunction, geneticDistance);</div>
+<div class="line">    <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i=0;i&lt;populationSize;++i){</div>
+<div class="line">        <span class="keyword">delete</span>[] bodies[i].cells;</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keyword">delete</span>[] bodies;</div>
+<div class="line">    <span class="keyword">delete</span>[] fitness;</div>
+<div class="line">    <span class="keyword">delete</span>[] genomes;</div>
+<div class="line">    }    </div>
+<div class="ttc" id="aevolution_8hpp_html_a53253e7bfd4234591abc6643bf6b395b"><div class="ttname"><a href="evolution_8hpp.html#a53253e7bfd4234591abc6643bf6b395b">evolve</a></div><div class="ttdeci">void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan&lt; W, T &gt; plan, float fitnessFunction(Body *body, const T &amp;targets, const W &amp;weights), uint64_t geneticDistance(const Genome_t &amp;first, const Genome_t &amp;second)=geneticDistance)</div><div class="ttdoc">Executes an entire selection plan on a population The end-user should define quantities they want to ...</div><div class="ttdef"><b>Definition:</b> evolution.hpp:175</div></div>
+<div class="ttc" id="astruct_selection_plan_html"><div class="ttname"><a href="struct_selection_plan.html">SelectionPlan</a></div><div class="ttdoc">Defines an entire selection plan.</div><div class="ttdef"><b>Definition:</b> evolution.hpp:151</div></div>
+<div class="ttc" id="astruct_selection_stage_html"><div class="ttname"><a href="struct_selection_stage.html">SelectionStage</a></div><div class="ttdoc">Defines an entire stage of selection, to go from one generation to the next.</div><div class="ttdef"><b>Definition:</b> evolution.hpp:139</div></div>
+<div class="ttc" id="astruct_selection_stage_html_acf51fc9838501f83343132f118e849a4"><div class="ttname"><a href="struct_selection_stage.html#acf51fc9838501f83343132f118e849a4">SelectionStage::weights</a></div><div class="ttdeci">W weights[2]</div><div class="ttdoc">weights[0] are the starting weights for each quantity defined in SelectionPlan.targets ,...</div><div class="ttdef"><b>Definition:</b> evolution.hpp:144</div></div>
+<div class="ttc" id="astruct_selection_stage_html_ae0be7032aeb7e5bc1875a97bbfe97e20"><div class="ttname"><a href="struct_selection_stage.html#ae0be7032aeb7e5bc1875a97bbfe97e20">SelectionStage::substages</a></div><div class="ttdeci">std::vector&lt; SelectionSubstage &gt; substages</div><div class="ttdef"><b>Definition:</b> evolution.hpp:142</div></div>
+<div class="ttc" id="astruct_selection_stage_html_ae9b92b2f9a22a98ad09f0f94f79dcbf4"><div class="ttname"><a href="struct_selection_stage.html#ae9b92b2f9a22a98ad09f0f94f79dcbf4">SelectionStage::repeats</a></div><div class="ttdeci">int repeats</div><div class="ttdoc">The number of times to repeat this SelectionStage.</div><div class="ttdef"><b>Definition:</b> evolution.hpp:146</div></div>
+</div><!-- fragment --> </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/<a class="el" href="evolution_8hpp_source.html">evolution.hpp</a></li>
 </ul>
 </div><!-- contents -->

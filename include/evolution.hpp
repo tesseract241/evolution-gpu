@@ -47,7 +47,7 @@ struct SelectionPlan{
 };
 
 template <class W, class T>
-void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan<W, T> plan, float fitnessFunction(Body *body, const T &targets, const W &weights), uint64_t geneticDistance(const Genome_t& first, const Genome_t& second)){
+void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan<W, T> plan, float fitnessFunction(Body *body, const T &targets, const W &weights), uint64_t geneticDistance(const Genome_t& first, const Genome_t& second)=geneticDistance){
     OpenGLHandles handles;
     if(!initializeOpenGLHandles(&handles)){
         exit(EXIT_FAILURE);    

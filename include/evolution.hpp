@@ -1,4 +1,7 @@
 #pragma once
+///@file evolution.hpp
+///@brief One-package solution to evolve an evo-devo 3D model according to genetic-algorithm rules
+
 #include <vector>
 #include <genetic-algorithm.hpp>
 #include <evo-devo-gpu.hpp>
@@ -8,7 +11,9 @@
 #include <random>
 #include <iostream>
 
+///Contains all the necessary data to call a genetic algorithm function
 struct SelectionSubstage{
+    ///One of the genetic algorithm functions
     enum Type{
         ROULETTE        = 0b000,
         LINEAR          = 0b001,
@@ -18,6 +23,7 @@ struct SelectionSubstage{
         UNIFORM_CO      = 0b101,
         MUTATE          = 0b110
     } type;
+    ///Data specific to each genetic algorithm function
     union{
         float selectionPressure;
         float k1;
@@ -25,27 +31,49 @@ struct SelectionSubstage{
         float mutationProbability;
         float desiredGeneticDistance;
     } param;
+    ///The number of individuals that this substage is to generate
     int individuals;
-    //Explicit constructors seem to be necessary to make vector.emplace_back to work
     SelectionSubstage(Type a, int b, int c){type = a; param.tournamentSize = b; individuals=c;}
     SelectionSubstage(Type a, float b, int c){type = a; param.k1= b; individuals=c;}
 };
 
+///Defines an entire stage of selection, to go from one generation to the next
 template<class W>
 struct SelectionStage{
+    ///The substages that compose this stage
+    ///@note The sum of the individuals member of each substage should be equal to your population size
     std::vector<SelectionSubstage> substages;
+    ///weights[0] are the starting weights for each quantity defined in SelectionPlan.targets , while weights[1] is added to weights[0] each repeat
     W weights[2];
+    ///The number of times to repeat this SelectionStage
     int repeats;
 };
 
+///Defines an entire selection plan
 template<class W, class T>
 struct SelectionPlan{
+    ///Individual stages that compose the plan
     SelectionStage<W> *stages;
+    ///Number of stages
     int number;
+    ///Whether the fitnesses are to be maximized or minimized. As this has to stay coherent throughout the entire plan, it's defined here
     bool maximizeFitness;
+    ///The ideal values for the quantities that the fitness function will calculate
     T targets;
 };
 
+/*!
+ * @brief   Executes an entire selection plan on a population
+ * The end-user should define quantities they want to calculate for each Body, their ideal values and how much each should weight. This information is then put into a user-defined fitness function, and SelectionPlan and SelectionStage have to be specialized using those two as the types for targets (T) and weights (W). Finally, initialize a Genome_t array with generateGenome from evo-devo-gpu and you can call this function.
+ * @param[out]  genomes             This has to contain the initial genomes values, as generate by generateGenome, and will hold the final values when the function returns
+ * @param[in]   populationSize      The length of the genomes array
+ * @param[in]   developmentStages   How many turns each birthBody call will take
+ * @param[out]  bodies              This will contain the last generation produced
+ * @param[out]  fitness             This will contain the fitness of the last generation produced
+ * @param[in]   plan                The selection plan the function will use
+ * @param[in]   fitnessFunction     The fitness function evolve() will call to calculate fitnesses
+ * @param[in]   geneticDistance     A function that describes the similarity between two genomes
+ */
 template <class W, class T>
 void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan<W, T> plan, float fitnessFunction(Body *body, const T &targets, const W &weights), uint64_t geneticDistance(const Genome_t& first, const Genome_t& second)=geneticDistance){
     OpenGLHandles handles;

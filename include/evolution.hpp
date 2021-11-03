@@ -172,7 +172,7 @@ struct SelectionPlan{
  * @param[in]   geneticDistance     A function that describes the similarity between two genomes
  */
 template <class W, class T>
-void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan<W, T> plan, float fitnessFunction(Body *body, const T &targets, const W &weights), uint64_t geneticDistance(const Genome_t& first, const Genome_t& second)=geneticDistance){
+void evolve(Genome_t *genomes, int populationSize, int developmentStages, Body *bodies, float *fitness, SelectionPlan<W, T> plan, float fitnessFunction(Body *body, const T &targets, const W &weights), uint64_t geneticDistance(const Genome_t& first, const Genome_t& second)=myGeneticDistance){
     OpenGLHandles handles;
     if(!initializeOpenGLHandles(&handles)){
         exit(EXIT_FAILURE);    
